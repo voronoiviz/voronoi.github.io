@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Voronoi with Halton Sequence</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+    }
+    label {
+      display: inline-block;
+      width: 100px;
+    }
+    input {
+      width: 100px;
+      margin-right: 20px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 5px 10px;
+      font-size: 1rem;
+    }
+    #canvasContainer {
+      margin-top: 20px;
+      border: 1px solid #ccc;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <h1>Voronoi Tesselation with Halton Distribution</h1>
+  
+  <div>
+    <label for="inputX">Width (X):</label>
+    <input type="number" id="inputX" min="1" value="600"/>
+  </div>
+  <div>
+    <label for="inputY">Height (Y):</label>
+    <input type="number" id="inputY" min="1" value="400"/>
+  </div>
+  <div>
+    <label for="inputN">Number of Points (N):</label>
+    <input type="number" id="inputN" min="1" value="50"/>
+  </div>
+  <button id="generateButton">Generate</button>
+  
+  <div id="canvasContainer">
+    <canvas id="myCanvas"></canvas>
+  </div>
+  
+  <!-- d3-delaunay library for Voronoi -->
+  <script src="https://d3js.org/d3-delaunay.v6.min.js"></script>
+  <script>
+    // Halton sequence generator for a given index and base
+    function halton(index, base) {
+      let result = 0;
+      let f = 1.0 / base;
+      let i = index;
+      
+      while (i > 0) {
+        result += f * (i % base);
+        i = Math.floor(i / base);
+        f /= base;
+      }
+      return result;
+    }
+    
+    // Generate N points in [0, width] x [0, height] using Halton with a random skip
+    function generatePoints(N, width, height) {
+      // Random skip to start from a non-zero index
+      const skip = Math.floor(Math.random() * 1000);
+      const points = [];
+      
+      for (let i = 0; i < N; i++) {
+        // Use different bases for x and y to spread them
+        const x = halton(i + skip, 2) * width;
+        const y = halton(i + skip, 3) * height;
+        points.push([x, y]);
+      }
+      return points;
+    }
+    
+    document.getElementById("generateButton").addEventListener("click", function() {
+      const inputX = document.getElementById("inputX");
+      const inputY = document.getElementById("inputY");
+      const inputN = document.getElementById("inputN");
+      
+      const X = parseInt(inputX.value, 10);
+      const Y = parseInt(inputY.value, 10);
+      const N = parseInt(inputN.value, 10);
+      
+      // Simple validation
+      if (isNaN(X) || isNaN(Y) || isNaN(N) || X <= 0 || Y <= 0 || N <= 0) {
+        alert("Please enter positive numeric values for X, Y, and N.");
+        return;
+      }
+      
+      // Set the canvas size
+      const canvas = document.getElementById("myCanvas");
+      canvas.width = X;
+      canvas.height = Y;
+      
+      const ctx = canvas.getContext("2d");
+      
+      // Fill background with white
+      ctx.fillStyle = "#FFFFFF";
+      ctx.fillRect(0, 0, X, Y);
+      
+      // Generate points via Halton
+      const points = generatePoints(N, X, Y);
+      
+      // Compute Voronoi using d3-delaunay
+      const delaunay = d3.Delaunay.from(points);
+      const voronoi = delaunay.voronoi([0, 0, X, Y]);
+      
+      // Draw the Voronoi edges
+      ctx.strokeStyle = "#000000";
+      ctx.beginPath();
+      voronoi.render(ctx);  // Render edges
+      ctx.stroke();
+    });
+  </script>
+</body>
+</html>
