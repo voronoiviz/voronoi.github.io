@@ -69,13 +69,14 @@
     // Generate N points in [0, width] x [0, height] using Halton with a random skip
     function generatePoints(N, width, height) {
       // Random skip to start from a non-zero index
-      const skip = Math.floor(Math.random() * 1000);
+      const skip1 = Math.floor(Math.random() * 6000);
+      const skip2 = Math.floor(Math.random() * 5000);
       const points = [];
       
       for (let i = 0; i < N; i++) {
         // Use different bases for x and y to spread them
-        const x = halton(i + skip, 2) * width;
-        const y = halton(i + skip, 3) * height;
+        const x = halton(i + skip1, 2) * width;
+        const y = halton(i + skip2, 3) * height;
         points.push([x, y]);
       }
       return points;
