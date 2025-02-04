@@ -75,8 +75,8 @@
       
       for (let i = 0; i < N; i++) {
         // Use different bases for x and y to spread them
-        const x = ((Math.random()-0.5)/2+ halton(i + skip1, 2)) * width;
-        const y = ((Math.random()-0.5)/2+ halton(i + skip2, 3)) * height;
+        const x = ((Math.random()-0.5)/4+ halton(i + skip1, 2)) * width;
+        const y = ((Math.random()-0.5)/4+ halton(i + skip2, 3)) * height;
         points.push([x, y]);
       }
       return points;
